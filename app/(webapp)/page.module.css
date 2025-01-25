@@ -1,8 +1,13 @@
 .h1, .h2 {
+  z-index: 1;
+  height: auto;
+  width: auto;
+  background-color: transparent;
+
   font-family: var(--font-patua-one);
 }
 
-.page {
+.main {
   --gray-rgb: 0, 0, 0;
   --gray-alpha-200: rgba(var(--gray-rgb), 0.08);
   --gray-alpha-100: rgba(var(--gray-rgb), 0.05);
@@ -10,14 +15,11 @@
   --button-primary-hover: #383838;
   --button-secondary-hover: #f2f2f2;
 
-  display: grid;
-  align-items: center;
-  justify-items: center;
-  min-height: 100svh;
+  display: block;
   font-family: var(--font-lato);
 }
 
-.canvas {
+.experience {
   border: 0;
   width: 100dvw;
   height: 100dvh;
@@ -25,6 +27,12 @@
   position: fixed;
   top: 0;
   left: 0;
+  z-index: 0;
+}
+
+.header {
+  position: relative;
+  z-index: 1;
 }
 
 
