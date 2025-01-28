@@ -4,7 +4,18 @@ import { useEffect, useState } from 'react'
 
 import * as THREE from 'three'
 import { useFrame, useThree } from '@react-three/fiber'
-import { OrbitControls, Environment, ContactShadows, CameraControls, Center, Text3D } from '@react-three/drei'
+import { 
+  OrbitControls, 
+  Environment, 
+  ContactShadows, 
+  Text3D, 
+  Caustics,
+  MeshTransmissionMaterial,
+  Center,
+  AccumulativeShadows,
+  RandomizedLight,
+  Resize
+} from '@react-three/drei'
 import { Perf } from 'r3f-perf'
 
 import { useControls } from 'leva'
@@ -14,7 +25,15 @@ const Experience = () => {
   const { width, height } = useThree((state: { viewport: any }) => state.viewport)
   const margin = 0.5
 
-  const { camPos, fov, showPerf, envColor, camFar, camNear } = useControls({
+  const { 
+    camPos, 
+    fov, 
+    camFar, 
+    camNear, 
+    showPerf, 
+    envColor, 
+    nameColor,
+  } = useControls({
     showPerf: true,
     camPos: {
         value: {
@@ -31,60 +50,61 @@ const Experience = () => {
     camFar: 400,
     camNear: 0.1,
     envColor: 'rgb(255, 255, 255)',
+    nameColor: 'rgb(255, 255, 255)',
     
   })
 
-  useFrame(({ camera }, delta) => {
-    // Update camera position
-    // camera.position.set(camPos.x, camPos.y, camPos.z)
-    
-    // Update camera properties
-    // camera.fov = fov
-    // camera.near = camNear
-    // camera.far = camFar
-    
-    // Important: Need to update projection matrix when changing these properties
-    // camera.updateProjectionMatrix()
-  }, [])
+  const boundsGeometry = new THREE.BoxGeometry(1, 1, 1)
+  const boundsMaterial = new THREE.MeshStandardMaterial({ color: envColor })
 
   return (
     <>
       { showPerf && <Perf position="top-left" /> }
-      
-      <OrbitControls />
-      {/* <CameraControls /> */}
-      <ambientLight intensity={0.7} />
+      <color attach="background" args={[envColor]} />
       <spotLight intensity={0.5} angle={0.1} penumbra={1} position={[10, 15, -5]} castShadow />
-      <Environment preset="city" background blur={1} />
-      <ContactShadows resolution={512} position={[0, -0.8, 0]} opacity={1} scale={10} blur={2} far={0.8} />
+      <rectAreaLight args={['white', 3]} width={5} height={5} position={[-3, 4, 1]} visible={false} />
+      <ambientLight intensity={0.4} />
+      <OrbitControls minPolarAngle={0} maxPolarAngle={ Math.PI / 2 } makeDefault />
+      
+      {/* 
+        Stage
+      */}
+      <mesh 
+        geometry={ boundsGeometry }
+        material={ boundsMaterial }
+        position={ [ 0, 0, 0 ] }
+        scale={ [ 8, 0.01, 8 ] }
+        receiveShadow 
+      />
+      <mesh 
+        geometry={ boundsGeometry } 
+        material={ boundsMaterial } 
+        position={ [ 0, 4, -4 ] } 
+        scale={ [ 8, 8, 0.01 ] }  
+        receiveShadow 
+      />
 
-      <Center rotation={[0, -0.25, 0]}>
+      <Caustics color={envColor} position={[0, -0.5, 0]} lightSource={[5, 5, -10]} worldRadius={0.01} ior={1.2} intensity={0.005}>
+        
         <Text3D
-          letterSpacing={-0.1} 
-          size={3.3} 
+          letterSpacing={-0.03} 
+          size={0.8} 
           font="/fonts/Patua-One_Regular.json"
-          castShadow={true}
-          height={ 0.2 }
-          curveSegments={ 12 }
+          castShadow
+          receiveShadow
+          position={[-3, 0.5, 0]}
+          // height={ 0.2 }
+          curveSegments={ 16 }
           bevelEnabled
           bevelThickness={ 0.08 }
-          bevelSize={ 0.02 }
-          bevelOffset={ 0 }
-          bevelSegments={ 5 }
-          // font="/fonts/helvetiker_regular.typeface.json"
+          // bevelSize={ 0 }
+          // bevelOffset={ 0 }
+          // bevelSegments={ 2 }
         >
           ro baldovino
-          <meshStandardMaterial color={envColor} />
+          <MeshTransmissionMaterial resolution={1024} distortion={0.3} color={nameColor} thickness={1} anisotropy={1} />
         </Text3D>
-      </Center>
-      
-      {/* <mesh position={[0, 0, 0]} castShadow={true}>
-        <boxGeometry args={[3, 3, 3]} />
-        <meshStandardMaterial 
-          color={envColor}
-          transparent={true} 
-        />
-      </mesh> */}
+      </Caustics>
     </>
   );
 }

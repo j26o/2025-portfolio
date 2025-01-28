@@ -18,8 +18,16 @@ export default function Home() {
       </header>
       <Leva hidden={showDebug} />
       <div className={`${styles.experience} w-full h-full`}>
-        <Canvas
-          camera={{ position: [0, 3, 25], fov: 40, near: 0.1 }}
+        <Canvas 
+          shadows 
+          gl={{ antialias: true }} 
+          dpr={[1, 1.5]} 
+          camera={
+            { 
+              position: [0, 0, 5], 
+              fov: 60 
+            }
+          }
         >
           <Experience />
         </Canvas>
